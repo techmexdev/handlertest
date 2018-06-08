@@ -29,18 +29,18 @@ func Test(t *testing.T, tc TestCase, h http.Handler) {
 	tc.Request.Body = ioutil.NopCloser(&buf)
 	reqBody, err := ioutil.ReadAll(tee)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal("error reading request body in handlertest: ", err)
 	}
 
 	rec := httptest.NewRecorder()
 	h.ServeHTTP(rec, tc.Request)
 	res := rec.Result()
 
-	defer res.Body.Close()
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal("error reading response body in handlertest: ", err)
 	}
+	defer res.Body.Close()
 
 	if tc.StatusCode != 0 && res.StatusCode != tc.StatusCode {
 		errMsg += fmt.Sprintf("Wrong status code: have %s, want %s. ", http.StatusText(res.StatusCode), http.StatusText(tc.StatusCode))
